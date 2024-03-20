@@ -54,8 +54,8 @@ app.use(createBasicAuthMiddleware({
 ## Development
 
 - Clone Repository
-- Install dependencies with `yarn install`
-- Use `yarn dev test/basic` to start basic example
+- Install dependencies with `pnpm install`
+- Use `pnpm dev test/basic` to start basic example
 
 ## License
 
