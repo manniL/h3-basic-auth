@@ -1,0 +1,56 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+      - run: pnpm install
+      - run: pnpm stub
+      - run: pnpm lint
+
+  ci:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: pnpm
+      - uses: oven-sh/setup-bun@v1
+        if: ${{ matrix.os != 'windows-latest' }}
+        with:
+          bun-version: latest
+      - uses: denoland/setup-deno@v1
+        if: ${{ matrix.os != 'windows-latest' }}
+        with:
+          deno-version: v1.x
+      - run: pnpm install
+      - run: pnpm test:types
+        if: ${{ matrix.os != 'windows-latest' }}
+      - run: pnpm build
+      - run: pnpm vitest --coverage
+        env:
+          NODE_OPTIONS: --experimental-vm-modules --enable-source-maps
